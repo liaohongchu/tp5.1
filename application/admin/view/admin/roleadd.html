@@ -1,0 +1,169 @@
+<div class="layuimini-main">
+
+    <div class="layui-form layuimini-form">
+        <input type="hidden" class="input-text" value="<?php echo $model['id'];?>" placeholder="" id="id" name="id">
+        <div class="layui-form-item">
+            <label class="layui-form-label required">角色名称</label>
+            <div class="layui-input-block">
+                <input type="text" name="role_name" lay-verify="required" lay-reqtext="角色不能为空" placeholder="请输入角色名" value="<?php echo $model['role_name'];?>" class="layui-input">
+                
+            </div>
+        </div>
+
+        <div class="layui-form-item layui-form-text">
+            <label class="layui-form-label">备注</label>
+            <div class="layui-input-block">
+                <input type="text" name="mark" placeholder="请输入备注信息" value="<?php echo $model['mark'];?>" class="layui-input">
+            </div>
+        </div>
+
+        <div class="layui-form-item">
+            <label class="layui-form-label">权限</label>
+            <div class="layui-input-block">
+                
+                <?php foreach($menu1 as $v){
+
+                
+
+                ?>
+                <ul class="ul1"><input type="checkbox" lay-filter="ul1chk"  name="acls[]" lay-skin="primary" id="f<?php echo $v['id'];?>" value="<?php echo $v['acl'];?>"><span><?php echo $v['menu_name'];?></span>
+
+                <?php foreach($menu2[$v['id']] as $v2 ){ 
+
+                    if(in_array($v2['acl'], $aclHas) && $v2['acl']){
+                       $chk='checked';
+                    }else{
+                        $chk='';
+                    }
+                  
+                ?>
+
+                <ul class="ul2 f<?php echo $v['id'];?>">
+                    <input type="checkbox" lay-filter="ul2chk" rel="1"  <?php echo $chk;?> value="<?php echo $v2['acl'];?>" name="acls[]"  lay-skin="primary" ><span><?php echo $v2['menu_name'];?></span>&nbsp;&nbsp;&nbsp;
+                    <input type="checkbox" lay-filter="ul2chk" rel="1"  <?php if( in_array($v2['add'], $aclHas) && $v2['add'] ){ echo 'checked';}?> value="<?php echo $v2['add'];?>" name="acls[]"  lay-skin="primary" ><span>添加</span>&nbsp;&nbsp;&nbsp;
+                    <input type="checkbox" lay-filter="ul2chk" rel="1"  <?php if( in_array($v2['edit'], $aclHas) && $v2['edit'] ){ echo 'checked';}?> value="<?php echo $v2['edit'];?>" name="acls[]"  lay-skin="primary" ><span>修改</span>&nbsp;&nbsp;&nbsp;
+                    <input type="checkbox" lay-filter="ul2chk" rel="1"  <?php if( in_array($v2['del'], $aclHas) && $v2['del'] ){ echo 'checked';}?> value="<?php echo $v2['del'];?>" name="acls[]"  lay-skin="primary" ><span>删除</span>&nbsp;&nbsp;&nbsp;
+                </ul>
+
+                </ul>
+                <?php } } ?>
+
+
+                
+            </div>
+        </div>
+
+        <div class="layui-form-item">
+            <div class="layui-input-block">
+                <button class="layui-btn" lay-submit lay-filter="saveBtn">确认保存</button>
+            </div>
+        </div>
+    </div>
+</div>
+<style>
+.ul2{
+    padding-left:30px;
+}
+.ul2 span{
+   vertical-align:bottom;
+}
+.ul1 span{
+   vertical-align:bottom;
+}
+</style>
+<script>
+    layui.use(['form', 'table'], function () {
+        var form = layui.form,
+            layer = layui.layer,
+            table = layui.table,
+            $ = layui.$;
+
+        /**
+         * 初始化表单，要加上，不然刷新部分组件可能会不加载
+         */
+        form.render();
+
+        // 当前弹出层，防止ID被覆盖
+        var parentIndex = layer.index;
+
+        //监听提交
+        form.on('submit(saveBtn)', function (data) {
+            /*
+            var index = layer.alert(JSON.stringify(data.field), {
+                title: '最终的提交信息'
+            }, function () {
+
+                // 关闭弹出层
+                layer.close(index);
+                layer.close(parentIndex);
+
+            });*/
+            var url = "{:url('Admin/roleadd')}";
+            //var t = $('form').serializeArray();
+            //var t = JSON.stringify(data.field);
+            var t = data.field;
+            //alert(t); return false;
+            $.ajax({
+                url:url,
+                type:'post',
+                data:t,
+                beforeSend:function () {
+                    //this.layerIndex = layer.load(0, { shade: [0.5, '#393D49'] });
+                },
+                success:function(data){
+                    data = JSON.parse(data);
+                    if(data.code == 0){
+                        layer.msg(data.msg, {
+                            icon: 6,//成功的表情
+                            time: 1000 //1秒关闭（如果不配置，默认是3秒）
+                        }, function(){
+                            location.reload();
+                        });
+                    }else{
+                        layer.msg(data.msg,{icon: 5});//失败的表情
+                        return;
+                    }
+                },
+                complete: function () {
+                    layer.close(this.layerIndex);
+                },
+            });
+                   
+            return false;
+        });
+     
+        //父节点全选/全不选
+        form.on('checkbox(ul1chk)', function(data){
+            var check = "."+data.elem.id+"";//获取父节点的id
+            $(check+' input').prop('checked',$(this).prop("checked"));//将和父节点id相同class的子节点选中
+            form.render();//更新全部
+        });
+        //子节点
+        form.on('checkbox(ul2chk)',function(data){
+            var rel = data.elem.attributes['rel'].value;//当前子节点下的rel的值
+            var check = ".ul2 .f"+rel;
+            //alert(check);
+            $(check+' input').prop('checked',$(this).prop("checked"));//将和父节点id相同class的子节点选中
+            form.render();//更新全部
+            // var idcheck = '#'+data.elem.attributes['check_child'].value;
+            /*
+            var test = 1;//定义一个初始值
+            for (var i = $(check).length - 1; i >= 0; i--) {
+                if($(check).eq(i).prop("checked")){
+                    test = 2;//当有复选框被选中时，初始值更改为2
+                }
+            }
+
+            if(test == 1){
+                $(idcheck).prop('checked',false);//如果初始值依旧为一，说明没有子节点的复选框被选中,则将和子节点相同class的
+            }else{
+                $(idcheck).prop('checked',true);//否则将父节点全选框选中
+            }
+            form.render();//更新全部*/
+
+        });
+        
+
+    });
+    
+</script>

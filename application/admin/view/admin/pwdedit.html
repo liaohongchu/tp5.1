@@ -1,0 +1,96 @@
+<style>
+    .layui-form-item .layui-input-company {width: auto;padding-right: 10px;line-height: 38px;}
+</style>
+<div class="layuimini-container layui-anim layui-anim-upbit">
+    <div class="layuimini-main">
+
+        <div class="layui-form layuimini-form">
+            <div class="layui-form-item">
+                <label class="layui-form-label required">旧的密码</label>
+                <div class="layui-input-block">
+                    <input type="password" name="password" lay-verify="required" lay-reqtext="旧的密码不能为空" placeholder="请输入旧的密码"  value="" class="layui-input">
+                    <tip>填写自己账号的旧的密码。</tip>
+                </div>
+            </div>
+
+            <div class="layui-form-item">
+                <label class="layui-form-label required">新的密码</label>
+                <div class="layui-input-block">
+                    <input type="password" name="pwd1" lay-verify="required" lay-reqtext="新的密码不能为空" placeholder="请输入新的密码"  value="" class="layui-input">
+                </div>
+            </div>
+            <div class="layui-form-item">
+                <label class="layui-form-label required">新的密码</label>
+                <div class="layui-input-block">
+                    <input type="password" name="pwd2" lay-verify="required" lay-reqtext="新的密码不能为空" placeholder="请输入新的密码"  value="" class="layui-input">
+                </div>
+            </div>
+
+            <div class="layui-form-item">
+                <div class="layui-input-block">
+                    <button class="layui-btn" lay-submit lay-filter="saveBtn">确认保存</button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    layui.use(['form','layuimini'], function () {
+        var form = layui.form,
+            layer = layui.layer,
+            layuimini = layui.layuimini;
+
+        /**
+         * 初始化表单，要加上，不然刷新部分组件可能会不加载
+         */
+        form.render();
+
+        //监听提交
+        form.on('submit(saveBtn)', function (data) {
+            var form = layui.form,
+            layer = layui.layer,
+            table = layui.table,
+            $ = layui.$;
+            /*
+            var index = layer.alert(JSON.stringify(data.field), {
+                title: '最终的提交信息'
+            }, function () {
+                layer.close(index);
+                layuimini.refresh();
+
+            });*/
+            var url = "{:url('Admin/pwdedit')}";
+            var t = data.field;
+            $.ajax({
+                url:url,
+                type:'post',
+                data:t,
+                beforeSend:function () {
+                    //this.layerIndex = layer.load(0, { shade: [0.5, '#393D49'] });
+                },
+                success:function(data){
+                    data = JSON.parse(data);
+                    if(data.code == 0){
+                        layer.msg(data.msg, {
+                            icon: 6,//成功的表情
+                            time: 1000 //1秒关闭（如果不配置，默认是3秒）
+                        }, function(){
+                            //location.reload();
+                        });
+                    }else{
+                        layer.msg(data.msg,{icon: 5});//失败的表情
+                        return;
+                    }
+                },
+                complete: function () {
+                    layer.close(index);
+                    layuimini.refresh();
+                    //layer.close(this.layerIndex);
+                },
+            });
+            return false;
+        });
+
+    });
+</script>

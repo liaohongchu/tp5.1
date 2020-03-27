@@ -1,0 +1,49 @@
+{
+  "clearInfo": {
+    "clearUrl": "api/clear.json"
+  },
+  "homeInfo": {
+    "title": "首页",
+    "icon": "fa fa-home",
+    "href": "admin/index/welcome.html"
+  },
+  "logoInfo": {
+    "title": "后台管理系统",
+    "image": "/ui/images/logo.png",
+    "href": ""
+  },
+  "menuInfo": {
+    "currency": {
+      "title": "常规管理",
+      "icon": "fa fa-address-book",
+      "child": [
+        {
+          "title": "系统管理",
+          "href": "",
+          "icon": "fa fa-file-text",
+          "target": "_self",
+          "child": [
+            {
+              "title": "管理员管理",
+              "href": "/index.php/admin/admin/adminlist",
+              "icon": "fa fa-tachometer",
+              "target": "_self"
+            },
+            {
+              "title": "角色管理",
+              "href": "/index.php/admin/admin/rolelist",
+              "icon": "fa fa-tachometer",
+              "target": "_self"
+            },
+            {
+              "title": "菜单权限",
+              "href": "/index.php/admin/admin/menulist",
+              "icon": "fa fa-tachometer",
+              "target": "_self"
+            }
+          ]
+        }
+      ]
+    }
+  }
+}

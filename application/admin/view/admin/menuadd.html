@@ -1,0 +1,122 @@
+<div class="layuimini-main">
+
+    <div class="layui-form layuimini-form">
+        <input type="hidden" class="input-text" value="<?php echo $model['id'];?>" placeholder="" id="id" name="id">
+       
+     
+        <div class="layui-form-item">
+            <label class="layui-form-label">菜单名称</label>
+            <div class="layui-input-block">
+                <input type="text" name="menu_name" placeholder="请输入名称" value="<?php echo $model['menu_name'];?>" class="layui-input">
+            </div>
+        </div>
+
+        <div class="layui-form-item">
+            <label class="layui-form-label">隶属分类</label>
+            <div class="layui-input-block">
+                <div class="layui-input-inline">
+                <select name="pid"  lay-search="">
+                  <option value="0">请选择</option>
+                  <?php foreach($menuArr as $v){?>
+                   <option value="<?php echo $v['id'];?>" <?php if($model['pid']==$v['id']){?>selected<?php } ?> ><?php echo $v['menu_name'];?></option>
+                  <?php } ?>
+                 
+                </select></div>
+            </div>
+        </div>
+        
+        <div class="layui-form-item">
+            <label class="layui-form-label">路径</label>
+            <div class="layui-input-block">
+                <input type="text" name="acl" placeholder="请输入路径" value="<?php echo $model['acl'];?>" class="layui-input">
+            </div>
+        </div>
+        
+        <div class="layui-form-item layui-form-text">
+            <label class="layui-form-label">备注信息</label>
+            <div class="layui-input-block">
+                <textarea name="mark" class="layui-textarea" placeholder="请输入备注信息"><?php echo $model['mark'];?></textarea>
+            </div>
+        </div>
+
+        <div class="layui-form-item">
+            <label class="layui-form-label">状态</label>
+            <div class="layui-input-block">
+                
+                  <input type="radio" name="status" value="1" title="开启"  <?php if($model['status']==1){?> checked <?php } ?>>
+                  <input type="radio" name="status" value="0" title="禁止" <?php if($model['status']==0){?> checked <?php } ?>>
+          
+                
+            </div>
+        </div>
+
+        <div class="layui-form-item">
+            <div class="layui-input-block">
+                <button class="layui-btn" lay-submit lay-filter="saveBtn">确认保存</button>
+            </div>
+        </div>
+    </div>
+</div>
+<script>
+    layui.use(['form', 'table'], function () {
+        var form = layui.form,
+            layer = layui.layer,
+            table = layui.table,
+            $ = layui.$;
+
+        /**
+         * 初始化表单，要加上，不然刷新部分组件可能会不加载
+         */
+        form.render();
+
+        // 当前弹出层，防止ID被覆盖
+        var parentIndex = layer.index;
+
+        //监听提交
+        form.on('submit(saveBtn)', function (data) {
+            /*
+            var index = layer.alert(JSON.stringify(data.field), {
+                title: '最终的提交信息'
+            }, function () {
+
+                // 关闭弹出层
+                layer.close(index);
+                layer.close(parentIndex);
+
+            });*/
+            var url = "{:url('Admin/menuadd')}";
+            //var t = $('form').serializeArray();
+            //var t = JSON.stringify(data.field);
+            var t = data.field;
+            //alert(t); return false;
+            $.ajax({
+                url:url,
+                type:'post',
+                data:t,
+                beforeSend:function () {
+                    //this.layerIndex = layer.load(0, { shade: [0.5, '#393D49'] });
+                },
+                success:function(data){
+                    data = JSON.parse(data);
+                    if(data.code == 0){
+                        layer.msg(data.msg, {
+                            icon: 6,//成功的表情
+                            time: 1000 //1秒关闭（如果不配置，默认是3秒）
+                        }, function(){
+                            location.reload();
+                        });
+                    }else{
+                        layer.msg(data.msg,{icon: 5});//失败的表情
+                        return;
+                    }
+                },
+                complete: function () {
+                    layer.close(this.layerIndex);
+                },
+            });
+                   
+            return false;
+        });
+
+    });
+</script>
