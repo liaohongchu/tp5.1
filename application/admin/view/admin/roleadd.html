@@ -21,14 +21,14 @@
             <label class="layui-form-label">权限</label>
             <div class="layui-input-block">
                 
-                <?php foreach($menu1 as $v){
+                <?php foreach($menu as $v){
 
                 
 
                 ?>
                 <ul class="ul1"><input type="checkbox" lay-filter="ul1chk"  name="acls[]" lay-skin="primary" id="f<?php echo $v['id'];?>" value="<?php echo $v['acl'];?>"><span><?php echo $v['menu_name'];?></span>
 
-                <?php foreach($menu2[$v['id']] as $v2 ){ 
+                <?php foreach($v['children'] as $v2 ){ 
 
                     if(in_array($v2['acl'], $aclHas) && $v2['acl']){
                        $chk='checked';
@@ -40,9 +40,10 @@
 
                 <ul class="ul2 f<?php echo $v['id'];?>">
                     <input type="checkbox" lay-filter="ul2chk" rel="1"  <?php echo $chk;?> value="<?php echo $v2['acl'];?>" name="acls[]"  lay-skin="primary" ><span><?php echo $v2['menu_name'];?></span>&nbsp;&nbsp;&nbsp;
-                    <input type="checkbox" lay-filter="ul2chk" rel="1"  <?php if( in_array($v2['add'], $aclHas) && $v2['add'] ){ echo 'checked';}?> value="<?php echo $v2['add'];?>" name="acls[]"  lay-skin="primary" ><span>添加</span>&nbsp;&nbsp;&nbsp;
-                    <input type="checkbox" lay-filter="ul2chk" rel="1"  <?php if( in_array($v2['edit'], $aclHas) && $v2['edit'] ){ echo 'checked';}?> value="<?php echo $v2['edit'];?>" name="acls[]"  lay-skin="primary" ><span>修改</span>&nbsp;&nbsp;&nbsp;
-                    <input type="checkbox" lay-filter="ul2chk" rel="1"  <?php if( in_array($v2['del'], $aclHas) && $v2['del'] ){ echo 'checked';}?> value="<?php echo $v2['del'];?>" name="acls[]"  lay-skin="primary" ><span>删除</span>&nbsp;&nbsp;&nbsp;
+                    <?php foreach($v2['children'] as $v3){?>
+                    <input type="checkbox" lay-filter="ul2chk" rel="1"  <?php echo $chk;?> value="<?php echo $v3['acl'];?>" name="acls[]"  lay-skin="primary" ><span><?php echo $v3['menu_name'];?></span>&nbsp;&nbsp;&nbsp;
+                    <?php } ?>
+                    
                 </ul>
 
                 </ul>

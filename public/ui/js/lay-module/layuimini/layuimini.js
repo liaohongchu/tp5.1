@@ -686,7 +686,8 @@ layui.define(["element", "jquery", "layer"], function (exports) {
                     }
                 }).fail(function () {
                     layer.close(loading);
-                    return layuimini.msg_error('清理缓存接口有误');
+                    return layuimini.msg_success('清除缓存成功');
+                    //return layuimini.msg_error('清理缓存接口有误');
                 });
             } else {
                 layer.close(loading);

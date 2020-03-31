@@ -13,17 +13,17 @@ class Index extends Base
         return view(); 
     }
     public function menuapi(){
-    	$menu1 = $this->menu[0];
-    	$menu2 = $this->menu[1];
-    	//print_r($this->menu); exit;
+    	$menu = $this->menu;
+
+    	//print_r($menu); exit;
     	
-    	foreach ($menu1 as $key => $value) {
+    	foreach ($menu as $key => $value) {
     		$arr1[$key]['title'] = $value['menu_name'];
 			$arr1[$key]['href'] = "/index.php/admin/".$value['acl'];
 			$arr1[$key]['icon'] = "fa fa-file-text";
 			$arr1[$key]['target'] = "_self";
 
-            foreach ($menu2[$value['id']] as $key2 => $value2) {
+            foreach ($value['children'] as $key2 => $value2) {
             	$arr2['title'] = $value2['menu_name'];
 				$arr2['href'] = "/index.php/admin/".$value2['acl'];
 				$arr2['icon'] = "fa fa-tachometer";

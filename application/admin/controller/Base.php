@@ -4,6 +4,7 @@ use think\Controller;
 use think\Db;
 use think\facade\Session;
 use think\Config;
+use think\facade\Request;
 
 //后台管理基础类
 class Base  extends Controller
@@ -41,11 +42,15 @@ class Base  extends Controller
         if($login_token != $token){
             $this->error('请先登录',url('Login/login'));
         }
+        
 
         $this->roleModel=$role_info=db('admin_role')->find($this->role_id);
         $this->getMenu($role_info);
         //$this->getTitleNav();
-        //$this->btnIsShow();
+        $this->btnIsShow();
+
+
+        $this->enterAuth();
 
         $this->assign('adminurl', $this->adminurl);
         $this->assign('adminModel', $this->adminModel);
@@ -59,10 +64,10 @@ class Base  extends Controller
      * @return [type]            [description]
      */
     protected function getMenu($role_info){
-        //print_r($role_info); exit;
-        $menu1=[];$menu2=[];$where="";
+       
+        $menu=[];$where="";
         if($this->role_id==1){ //超级管理员，显示所有菜单
-            $menu1=db('admin_menu')->where("status=1 and pid=0")->select();
+            $menu=db('admin_menu')->where("status=1 and pid=0")->select();
         }else{
             $arr=array();
             $aclSql='';
@@ -82,36 +87,50 @@ class Base  extends Controller
             }
             $aclSql=trim(substr($aclSql,0,strlen($aclSql)-3)); 
        
-            $menu1=db('admin_menu')->where("status=1 and pid=0 and (".$aclSql.") ")->select();
+            $menu=db('admin_menu')->where("status=1 and pid=0 and (".$aclSql.") ")->select();
             //echo "status=1 and pid=0 and (".$aclSql.") "; exit;
             
             $where = " and (".$aclSql.")";
 
         }
         
-        foreach ($menu1 as $key => $value) {
-            $menu2[$value['id']]=db('admin_menu')->where("status=1 and pid='".$value['id']."' ".$where." ")->select();
-            foreach ($menu2[$value['id']] as $k2 => $v2) {
-
-                $menu2[$value['id']][$k2]['add']=str_replace('list','add',$v2['acl']);   //添加权限
-                $menu2[$value['id']][$k2]['edit']=str_replace('list','edit',$v2['acl']); //修改权限
-                $menu2[$value['id']][$k2]['del']=str_replace('list','del',$v2['acl']);   //删除权限
+        foreach ($menu as $key => $value) {
+            $menu[$key]['children']=db('admin_menu')->where("status=1 and pid='".$value['id']."' ".$where." ")->select();
+            
+            foreach ($menu[$key]['children'] as $k2 => $v2) {
+                $menu[$key]['children'][$k2]['children']=db('admin_menu')->where("status=1 and pid='".$v2['id']."' ")->select();
             }
         }
 
-      
-        $this->menu[0] = $menu1;
-        $this->menu[1] = $menu2;
-        $this->assign('menu1', $menu1);
-        $this->assign('menu2', $menu2);
+
+
+        //print_r($menu); exit;
+        
+        $this->menu = $menu;
+        $this->assign('menu', $menu);
 
     }
 
     /**
      * 进入权限通行证
      */
-    protected function enterAuth($acl,$retType=''){
+    protected function enterAuth($retType=''){
+        
+        
         if($this->role_id!=1){ //不是超级管理员，要通行证
+
+            //$module = Request::instance()->module();
+            $controller = Request::instance()->controller();
+            $action = Request::instance()->action();
+            $acl = strtolower($controller."/".$action);
+            $colAuth = array('Index');
+            if( in_array($controller,$colAuth) ){
+                return true;
+            }
+
+            if( strstr($action, "json") ){
+                return true;
+            }
 
             $aclList=$this->roleModel['aclList'];
 
@@ -136,25 +155,9 @@ class Base  extends Controller
      * 具体按钮添加，修改，删除等权限判断 是否展示 
      */
     protected function btnIsShow(){
-        $aclArr=array();
-        $aclArr['add']=strtolower( request()->controller().'/'.str_replace('list','add',request()->action()) );
-        $aclArr['edit']=strtolower( request()->controller().'/'.str_replace('list','edit',request()->action()) );
-        $aclArr['del']=strtolower( request()->controller().'/'.str_replace('list','del',request()->action()) );
-
         $authArr=explode(',',$this->roleModel['aclList']);
         $btnshowArr=array();
-        foreach ($aclArr as $key => $value) {
-            if(in_array($value,$authArr) || $this->role_id==1 ){
-                $btnshowArr[$key]=1;
-            }else{
-                $btnshowArr[$key]=0;
-            }
-        }
-
-        //print_r ($btnshowArr);
-        $this->assign('btnshowArr', $btnshowArr);
-
-
+        $this->assign('btnshowArr', $authArr);
     }
 
     /**
