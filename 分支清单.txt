@@ -1,0 +1,21 @@
+分支清单：master、dev、release、feature、bug
+
+https://www.jianshu.com/p/cb2cd3a28656
+
+Git常用版本策略
+
+分支清单：master、dev、release、feature、bug
+
+master分支用于发布版本，是比较稳定的发布版本，版本发布后都在master分支上打上tag。
+
+dev分支用于日常开发，所有开发人员都将将remote repo的dev分支clone到本地，用于日常开发。
+
+feature分支为开发人员拉的新功能开发分支，当开发人员功能开发完成后，切换到dev分支，将feature分支的代码merge到dev分支。
+
+release分支为当dev分支版本稳定准备发版的时候，从dev拉一个release分支，后续发布前再测出的bug在dev开发修复完成后，直接merge到release分支，在测试全部结束后，将release分支的代码merge到master分支并打上发版标签。
+
+bug分支主要是用于在日常运行过程中发现线上程序有紧急bug需要修复则从master分支找到发版的tag，新建一个bug分支从master分支拉取线上版本的tag代码，在bug分支对代码进行修改，修复问题后将代码merge至master分支，并把bug修复merge到dev分支。
+
+在这个版本策略中，master、release、dev分支必须要有远程仓库，feature的两个开发分支可以没有远程仓库，开发人员在本地开发完后直接merge到dev分支，但还是建议有远程仓库，这样可以防止本地代码丢失后可以通过远程库找回，并且其他同学的电脑中也会分布式保存了版本。
+
+这个gitflow的版本策略核心思想就是在自己的feature分支上进行新功能开发，开发完成后将代码merge到dev分支，等一个迭代的所有功能都开发完成后，小伙伴都将各自的feature分支的代码merge到dev分支后，就可以从dev分支打tag发布测试版本进行测试了，如果在测试过程中遇到bug，则开发同学在自己的开发分支修复bug后，提交代码并merge到dev分支，等测试工作基本结束准备发布版本的时候，需要单独拉一个release分支，用于最后的版本发布，如果在版本发布前还发现问题，那么就直接在开发分支上修复问题后直接提交到release分支，在最后发布正式版本的时候将release分支的代码merge到master分支，并且打上发版tag，至此一次从开发到版本发布的版本策略就全部结束了。
